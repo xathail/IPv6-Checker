@@ -1,9 +1,12 @@
+# Imports
 import discord
 import socket
 import requests
 
+# Setting Up Bot
 bot = discord.Bot()
 
+# Ping Command
 @bot.command(description="Sends the bot's latency.")
 async def ping(ctx):
     if round(bot.latency * 1000) <= 50:
@@ -16,6 +19,7 @@ async def ping(ctx):
         embed=discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0x990000)
     await ctx.respond(embed=embed)
     
+# Cloudflare Check Command
 @bot.command(description="Check a domain to see if it supports cloudflare.")
 async def cloudflare(ctx, domain: str):
     if 'https://' in domain or 'http://' in domain: 
@@ -35,15 +39,25 @@ async def cloudflare(ctx, domain: str):
         else:
             embed = discord.Embed(title=f'{domain} Does Not Use Cloudflare', color=0xFF0000)
             await ctx.respond(embed=embed)
-    
+
+# IPv6 Check Command
 @bot.command(description="Check a domain to see if it supports IPv6.")
 async def ipv6(ctx, domain: discord.Option(discord.SlashCommandOptionType.string)):
+    domain = domain.replace("http://","").replace("https://","").replace("www.","")
     try:
         ipv6_address = socket.getaddrinfo(domain, None, socket.AF_INET6)
         embed = discord.Embed(title=f'{domain} Supports IPv6', description=f'IPv6 Address: {ipv6_address[0][4][0]}', color=0x32CD32)
         await ctx.respond(embed=embed)
     except socket.gaierror as e:
-        embed = discord.Embed(title=f'Error Finding Compatibility:', description=f'{e}', color=0xFF0000)
-        await ctx.respond(embed=embed)
+        domain = 'www.'+domain
+        try:
+            ipv6_address = socket.getaddrinfo(domain, None, socket.AF_INET6)
+            embed = discord.Embed(title=f'{domain} Supports IPv6', description=f'IPv6 Address: {ipv6_address[0][4][0]}', color=0x32CD32)
+            await ctx.respond(embed=embed)
+        except socket.gaierror as e:
+            embed = discord.Embed(title=f'Error Finding Compatibility:', description=f'{e}', color=0xFF0000)
+            await ctx.respond(embed=embed)
         
+# Run Bot
 bot.run("TOKEN")
+ 
