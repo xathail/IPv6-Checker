@@ -3,6 +3,7 @@ import discord
 import socket
 import requests
 from colorama import Fore
+from datetime import datetime
 
 # Setup Bot
 bot = discord.Bot(activity = discord.Game(name="Around With IPv6 | By xerius"), status=discord.Status.idle)
@@ -18,6 +19,8 @@ async def ping(ctx):
 @bot.command(description="Checks IPv6 & Cloudflare Compatibility")
 async def check(ctx, domain: str):
     domain = domain.replace("http://","").replace("https://","").replace("www.","") # Removes http://, https:// and www.
+    head, sep, tail = domain.partition('/')
+    domain = head
     try:
         ipv6_address = socket.getaddrinfo(domain, None, socket.AF_INET6) # Tries To Get IPv6 Address
         domain = "http://"+domain # Setup For CF Request
@@ -55,7 +58,13 @@ async def check(ctx, domain: str):
                 embed = discord.Embed(title=f"{domain} Information", description=f"\n:x: IPv6\n:x: Cloudflare", color=0xFF0000)
                 embed.set_footer(text=f"{e}")
                 await ctx.respond(embed=embed)
-    print(Fore.GREEN+ "\n[Command Used: 'check']"+Fore.RED+f"[User: {ctx.author.name}]"+Fore.YELLOW+f"[Domain: {domain}]")
+    print(Fore.LIGHTMAGENTA_EX + f"[Command Used: 'check']" + Fore.RED + f"[User: {ctx.author.name}#{ctx.author.discriminator}]" + Fore.YELLOW + f"[Domain: {domain}]" + Fore.BLUE + f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]" + Fore.CYAN + f"[Server: {ctx.guild.name}]")
+    
+    log_string = f"[Command Used: 'check']" + f"[User: {ctx.author.name}#{ctx.author.discriminator}]" + f"[Domain: {domain}]" + f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]" + f"[Server: {ctx.guild.name}]"
+    with open("command_logs.txt", "a") as f:
+    	f.write(log_string + "\n")
+
+
 
     
 # Runs Bot
