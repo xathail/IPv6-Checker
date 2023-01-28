@@ -2,10 +2,11 @@
 import discord
 import socket
 import requests
+from colorama import Fore
 
 # Setup Bot
 bot = discord.Bot(activity = discord.Game(name="Around With IPv6 | By xerius"), status=discord.Status.idle)
-print("Bot Online!")
+print(Fore.GREEN+"[Bot Online]")
 
 # Ping Command
 @bot.command(description="Ping? Pong!")
@@ -54,5 +55,8 @@ async def check(ctx, domain: str):
                 embed = discord.Embed(title=f"{domain} Information", description=f"\n:x: IPv6\n:x: Cloudflare", color=0xFF0000)
                 embed.set_footer(text=f"{e}")
                 await ctx.respond(embed=embed)
+    print(Fore.GREEN+ "\n[Command Used: 'check']"+Fore.RED+f"[User: {ctx.author.name}]"+Fore.YELLOW+f"[Domain: {domain}]")
+
+    
 # Runs Bot
 bot.run("TOKEN")
