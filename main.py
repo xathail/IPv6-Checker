@@ -1,48 +1,24 @@
-# Imports
 import discord
 import socket
 import requests
 
-# Setting Up Bot
-bot = discord.Bot()
+bot = discord.Bot(activity = discord.Game(name="Around With IPv6 | By xerius"), status=discord.Status.idle)
+print("Bot Online!")
 
-# Ping Command
 @bot.command(description="Sends the bot's latency.")
 async def ping(ctx):
-    if round(bot.latency * 1000) <= 50:
-        embed=discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0x44ff44)
-    elif round(bot.latency * 1000) <= 100:
-        embed=discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0xffd000)
-    elif round(bot.latency * 1000) <= 200:
-        embed=discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0xff6600)
-    else:
-        embed=discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0x990000)
+    embed = discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0x44ff44 if round(bot.latency * 1000) <= 50 else 0xffd000 if round(bot.latency * 1000) <= 100 else 0xff6600 if round(bot.latency * 1000) <= 200 else 0x990000)
     await ctx.respond(embed=embed)
     
-# Cloudflare Check Command
 @bot.command(description="Check a domain to see if it supports cloudflare.")
 async def cloudflare(ctx, domain: str):
-    if 'https://' in domain or 'http://' in domain: 
-        response = requests.get(domain)
-        if 'cf-ray' in response.headers:
-            embed = discord.Embed(title=f'{domain} Uses Cloudflare', color=0x32CD32)
-            await ctx.respond(embed=embed)
-        else:
-            embed = discord.Embed(title=f'{domain} Does Not Use Cloudflare', color=0xFF0000)
-            await ctx.respond(embed=embed)
-    else:
-        domain = 'http://'+domain
-        response = requests.get(domain)
-        if 'cf-ray' in response.headers:
-            embed = discord.Embed(title=f'{domain} Uses Cloudflare', color=0x32CD32)
-            await ctx.respond(embed=embed)
-        else:
-            embed = discord.Embed(title=f'{domain} Does Not Use Cloudflare', color=0xFF0000)
-            await ctx.respond(embed=embed)
+    domain = domain if 'https://' in domain or 'http://' in domain else 'http://'+domain
+    response = requests.get(domain)
+    embed = discord.Embed(title=f'{domain} Uses Cloudflare' if 'cf-ray' in response.headers else f'{domain} Does Not Use Cloudflare', color=0x32CD32 if 'cf-ray' in response.headers else 0xFF0000)
+    await ctx.respond(embed=embed)
 
-# IPv6 Check Command
 @bot.command(description="Check a domain to see if it supports IPv6.")
-async def ipv6(ctx, domain: discord.Option(discord.SlashCommandOptionType.string)):
+async def check(ctx, domain: discord.Option(discord.SlashCommandOptionType.string)):
     domain = domain.replace("http://","").replace("https://","").replace("www.","")
     try:
         ipv6_address = socket.getaddrinfo(domain, None, socket.AF_INET6)
@@ -55,9 +31,7 @@ async def ipv6(ctx, domain: discord.Option(discord.SlashCommandOptionType.string
             embed = discord.Embed(title=f'{domain} Supports IPv6', description=f'IPv6 Address: {ipv6_address[0][4][0]}', color=0x32CD32)
             await ctx.respond(embed=embed)
         except socket.gaierror as e:
-            embed = discord.Embed(title=f'Error Finding Compatibility:', description=f'{e}', color=0xFF0000)
+            embed = discord.Embed(title=f'Error Finding Compatibility', description=f'I was unable to find IPv6 compatibility for the domain {domain} \n\n*{e}*', color=0xFF0000)
             await ctx.respond(embed=embed)
-        
-# Run Bot
+
 bot.run("TOKEN")
- 
