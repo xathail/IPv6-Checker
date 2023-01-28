@@ -7,6 +7,12 @@ import requests
 bot = discord.Bot(activity = discord.Game(name="Around With IPv6 | By xerius"), status=discord.Status.idle)
 print("Bot Online!")
 
+# Ping Command
+@bot.command(description="Ping? Pong!")
+async def ping(ctx):
+    embed = discord.Embed(title="Bot Ping:", description=f"The ping is **{round(bot.latency *1000)}** milliseconds!", color=0x44ff44 if round(bot.latency * 1000) <= 50 else 0xffd000 if round(bot.latency * 1000) <= 100 else 0xff6600 if round(bot.latency * 1000) <= 200 else 0x990000)
+    await ctx.respond(embed=embed)
+    
 # Check Command
 @bot.command(description="Checks IPv6 & Cloudflare Compatibility")
 async def check(ctx, domain: str):
