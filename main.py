@@ -3,11 +3,56 @@ import discord
 import socket
 import requests
 from colorama import Fore
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Setup Bot
 bot = discord.Bot(activity = discord.Game(name="Around With IPv6 | By xerius"), status=discord.Status.idle)
 print(Fore.GREEN+"[Bot Online]")
+
+
+
+@bot.command()
+async def txinfo(ctx, crypto: str, txid: str):
+    crypto = crypto.lower()
+    api_url = f'https://api.blockcypher.com/v1/{crypto}/main/txs/{txid}'
+    response = requests.get(api_url)
+    if response.status_code != 200:
+        await ctx.respond(f"Transaction ID not found. Please check the input and try again.")
+        return
+    transaction_info = response.json()
+    amount = transaction_info['total'] / 100000000
+    embed = discord.Embed(title=f'Transaction Information ({crypto.upper()})',
+                          color=discord.Color.green(),
+                          description=f'Transaction ID: {txid}')
+    embed.add_field(name='Confirmations:', value=transaction_info['confirmations'], inline=True)
+    embed.add_field(name='Amount:', value=f'{amount:.8f} {crypto.upper()}', inline=True)
+    embed.set_footer(text='Do Not Code When Tired!')
+    await ctx.respond(embed=embed)
+
+
+    
+@bot.command()
+async def wallet_info(ctx, crypto: str, wallet_address: str):
+    crypto = crypto.lower()
+    api_url = f'https://api.blockcypher.com/v1/{crypto}/main/addrs/{wallet_address}'
+    response = requests.get(api_url)
+    wallet_info = response.json()
+    tx = wallet_info['txrefs'][0]
+    timestamp = tx['confirmed'].split("T")[0] + " " + tx['confirmed'].split("T")[1][:-1]
+    timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+    timestamp_seconds = int(timestamp.timestamp()) + 3600
+    embed = discord.Embed(title=f'Wallet Information ({crypto.upper()})',
+                          color=discord.Color.green(),
+                          description=f'Wallet Address: {wallet_address}')
+    embed.add_field(name='Most Recent Transaction:', value=tx['tx_hash'], inline=True)
+    embed.add_field(name='Amount Received:', value=f'{tx["value"]/10**8:.8f} {crypto.upper()}', inline=True)
+    embed.add_field(name='Transaction Timestamp:', value=f'<t:{timestamp_seconds}:f>', inline=True)
+    embed.set_footer(text='Do Not Code When Tired')
+    await ctx.respond(embed=embed)
+
+
+
+
 
 # Ping Command
 @bot.command(description="Ping? Pong!")
