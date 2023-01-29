@@ -63,7 +63,7 @@ async def ping(ctx):
 # Check Command
 @bot.command(description="Checks IPv6 & Cloudflare Compatibility")
 async def check(ctx, domain: str):
-    print(Fore.LIGHTMAGENTA_EX + f"[Command Used: 'check']" + Fore.RED + f"[User: {ctx.author.name}#{ctx.author.discriminator}]" + Fore.YELLOW + f"[Domain: {domain}]" + Fore.BLUE + f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]" + Fore.CYAN + f"[Server: {ctx.guild.name}]")
+    print(Fore.LIGHTMAGENTA_EX + f"[Command Used: 'check']" + Fore.BLUE + f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]" + Fore.RED + f"[User: {ctx.author.name}#{ctx.author.discriminator}]" + Fore.YELLOW + f"[Domain: {domain}]")
     domain = domain.replace("http://","").replace("https://","").replace("www.","") # Removes http://, https:// and www.
     head, sep, tail = domain.partition('/')
     domain = head
@@ -130,9 +130,6 @@ async def check(ctx, domain: str):
             except requests.exceptions.RequestException:
                 embed = discord.Embed(title=f"{domain} Information", description=f"\n:x: IPv6\n:question: Cloudflare", color=0x32CD32)
                 await ctx.respond(embed=embed) 
-    log_string = f"[Command Used: 'check']" + f"[User: {ctx.author.name}#{ctx.author.discriminator}]" + f"[Domain: {domain}]" + f"[Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]" + f"[Server: {ctx.guild.name}]"
-    with open("command_logs.txt", "a") as f:
-    	f.write(log_string + "\n")
 
 # Runs Bot
 bot.run("TOKEN")
